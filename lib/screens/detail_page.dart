@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../services/api_service.dart';
 
 class DetailPage extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -94,10 +95,17 @@ class DetailPage extends StatelessWidget {
                      ),
                    ),
                    const SizedBox(height: 32),
-                   _buildSectionTitle('SCAN IDENTIFIER'),
+                   _buildSectionTitle('VEHICLE INFORMATION'),
                    const SizedBox(height: 12),
-                   _buildInfoRow('Scan ID', '#TR-${data['id'].toString().padLeft(4, '0')}'),
-                   _buildInfoRow('Car ID', data['car_id']?.toString() ?? 'N/A'),
+                   FutureBuilder<Map<String, dynamic>?>(
+                     future: ApiService.getCar(data['car_id']?.toString() ?? ''),
+                     builder: (context, snapshot) {
+                       final carName = snapshot.hasData 
+                         ? '${snapshot.data!['brand']} ${snapshot.data!['model']}'
+                         : 'Loading vehicle info...';
+                       return _buildInfoRow('Vehicle Name', carName);
+                     },
+                   ),
                    const SizedBox(height: 32),
                    _buildSectionTitle('AI DIAGNOSIS'),
                    const SizedBox(height: 12),
