@@ -31,7 +31,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>?> getCar(int id) async {
+  static Future<Map<String, dynamic>?> getCar(String id) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/cars/$id'));
       if (response.statusCode == 200) {
@@ -73,7 +73,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>?> updateCar(int id, Map<String, dynamic> data) async {
+  static Future<Map<String, dynamic>?> updateCar(String id, Map<String, dynamic> data) async {
     try {
       final response = await http.put(
         Uri.parse('$baseUrl/cars/$id'),
@@ -90,7 +90,7 @@ class ApiService {
     }
   }
 
-  static Future<bool> deleteCar(int id) async {
+  static Future<bool> deleteCar(String id) async {
     try {
       final response = await http.delete(Uri.parse('$baseUrl/cars/$id'));
       return response.statusCode == 200;
@@ -102,7 +102,7 @@ class ApiService {
 
   // === 2. AI Prediction ===
 
-  static Future<Map<String, dynamic>?> predict(File imageFile, {int? carId}) async {
+  static Future<Map<String, dynamic>?> predict(File imageFile, {String? carId}) async {
     try {
       final uri = Uri.parse('$baseUrl/predict');
       final request = http.MultipartRequest('POST', uri);
@@ -114,7 +114,7 @@ class ApiService {
       ));
 
       if (carId != null) {
-        request.fields['car_id'] = carId.toString();
+        request.fields['car_id'] = carId;
       }
 
       final streamedResponse = await request.send();
@@ -135,7 +135,7 @@ class ApiService {
 
   // === 3. Timeline ===
 
-  static Future<List<Map<String, dynamic>>> getTimeline({int? carId}) async {
+  static Future<List<Map<String, dynamic>>> getTimeline({String? carId}) async {
     try {
       var url = '$baseUrl/timeline';
       if (carId != null) url += '?car_id=$carId';
@@ -152,7 +152,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>?> getTimelineDetail(int id) async {
+  static Future<Map<String, dynamic>?> getTimelineDetail(String id) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/timeline/$id'));
       if (response.statusCode == 200) {

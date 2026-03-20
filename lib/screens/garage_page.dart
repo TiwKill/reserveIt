@@ -192,10 +192,10 @@ class _GaragePageState extends State<GaragePage> {
     required VoidCallback onEdit,
     required VoidCallback onDelete,
   }) {
-    // Generate a consistent color based on car ID since server doesn't return color
-    final int carId = data['id'] is int ? data['id'] : int.tryParse(data['id'].toString()) ?? 0;
+    // Generate a consistent color based on car ID (UUID string)
+    final String carId = data['id'].toString();
     final List<Color> colors = [AppTheme.primary, AppTheme.success, AppTheme.warning, AppTheme.danger, Colors.purple, Colors.orange];
-    final Color color = colors[carId % colors.length];
+    final Color color = colors[carId.hashCode % colors.length];
     
     // Server doesn't return health for now, default to 100%
     final double health = 1.0; 

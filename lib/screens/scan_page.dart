@@ -61,7 +61,7 @@ class _ScanPageState extends State<ScanPage> {
   Future<void> _performPrediction(File file) async {
     setState(() => _isAnalyzing = true);
     // You might want to pass a real car_id here if selectable from UI
-    final result = await ApiService.predict(file, carId: 1); 
+    final result = await ApiService.predict(file, carId: '1'); 
     if (mounted) {
       setState(() {
         _predictionResult = result;
