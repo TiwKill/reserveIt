@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "862796959604",
+    "project_id": "reserveit-d950e",
+    "storage_bucket": "reserveit-d950e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:862796959604:android:f31395f0b4ef186d39e621",
+        "android_client_info": {
+          "package_name": "com.example.my_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2yaJoQHHkCzUdVfPHP05Vw_Q6jEHp0ws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
