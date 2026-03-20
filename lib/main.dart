@@ -8,8 +8,6 @@ import 'screens/garage_page.dart';
 import 'screens/settings_page.dart';
 import 'widgets/navbar.dart';
 import 'screens/vehicle_selection_page.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 late List<CameraDescription> _cameras;
 
@@ -125,21 +123,17 @@ class _MainScaffoldState extends State<MainScaffold> {
                     icon: Icons.photo_library_rounded,
                     label: 'Gallery',
                     color: Colors.blue,
-                    onTap: () async {
+                    onTap: () {
                       Navigator.pop(context);
-                      final ImagePicker picker = ImagePicker();
-                      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-                      if (image != null && context.mounted) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VehicleSelectionPage(
-                              cameras: _cameras,
-                              preSelectedImage: File(image.path),
-                            ),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VehicleSelectionPage(
+                            cameras: _cameras,
+                            isGalleryMode: true,
                           ),
-                        );
-                      }
+                        ),
+                      );
                     },
                   ),
                 ),

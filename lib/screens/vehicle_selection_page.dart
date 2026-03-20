@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../theme.dart';
 import '../services/api_service.dart';
@@ -9,11 +10,13 @@ import 'scan_page.dart';
 class VehicleSelectionPage extends StatefulWidget {
   final List<CameraDescription> cameras;
   final File? preSelectedImage;
+  final bool isGalleryMode;
 
   const VehicleSelectionPage({
     super.key,
     required this.cameras,
     this.preSelectedImage,
+    this.isGalleryMode = false,
   });
 
   @override
@@ -23,6 +26,7 @@ class VehicleSelectionPage extends StatefulWidget {
 class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
   List<Map<String, dynamic>> _vehicles = [];
   bool _isLoading = true;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -41,13 +45,30 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
     }
   }
 
-  void _onVehicleSelected(Map<String, dynamic> car) {
+  Future<void> _onVehicleSelected(Map<String, dynamic> car) async {
+    File? selectedFile = widget.preSelectedImage;
+
+    // If we are in gallery mode, we must pick the image NOW after selecting the car
+    if (widget.isGalleryMode) {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1000,
+        maxHeight: 1000,
+        imageQuality: 85,
+      );
+      
+      if (image == null) return; // User cancelled
+      selectedFile = File(image.path);
+    }
+
+    if (!mounted) return;
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ScanPage(
           cameras: widget.cameras,
-          preSelectedImage: widget.preSelectedImage,
+          preSelectedImage: selectedFile,
           targetCarId: car['id'].toString(),
           targetCarName: '${car['brand']} ${car['model']}',
         ),
@@ -76,16 +97,31 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _vehicles.isEmpty
               ? _buildEmptyState()
-              : ListView.builder(
-                  padding: const EdgeInsets.all(24),
-                  itemCount: _vehicles.length,
-                  itemBuilder: (context, index) {
-                    final car = _vehicles[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: _buildVehicleCard(car),
-                    );
-                  },
+              : Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      child: Text(
+                        widget.isGalleryMode 
+                          ? 'Select a vehicle to upload from gallery' 
+                          : 'Select a vehicle to scan with camera',
+                        style: const TextStyle(color: Colors.white54, fontSize: 14),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        itemCount: _vehicles.length,
+                        itemBuilder: (context, index) {
+                          final car = _vehicles[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _buildVehicleCard(car),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
     );
   }
