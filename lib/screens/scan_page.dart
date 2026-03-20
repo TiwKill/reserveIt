@@ -9,8 +9,16 @@ import 'dart:io';
 class ScanPage extends StatefulWidget {
   final List<CameraDescription> cameras;
   final File? preSelectedImage;
+  final String? targetCarId;
+  final String? targetCarName;
   
-  const ScanPage({super.key, required this.cameras, this.preSelectedImage});
+  const ScanPage({
+    super.key, 
+    required this.cameras, 
+    this.preSelectedImage,
+    this.targetCarId,
+    this.targetCarName,
+  });
 
   @override
   State<ScanPage> createState() => _ScanPageState();
@@ -60,8 +68,8 @@ class _ScanPageState extends State<ScanPage> {
 
   Future<void> _performPrediction(File file) async {
     setState(() => _isAnalyzing = true);
-    // You might want to pass a real car_id here if selectable from UI
-    final result = await ApiService.predict(file, carId: '1'); 
+    // Use the targetCarId passed from selection page or default to 1 (deprecated but for safety)
+    final result = await ApiService.predict(file, carId: widget.targetCarId ?? '1'); 
     if (mounted) {
       setState(() {
         _predictionResult = result;
@@ -322,7 +330,15 @@ class _ScanPageState extends State<ScanPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Data Analytics', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Data Analytics', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                          Text(widget.targetCarName ?? 'Quick Scan', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
                     Text('#${_predictionResult?['filename']?.substring(0, 8) ?? 'TR-SCAN'}', style: const TextStyle(color: Colors.white30, fontSize: 10, fontFamily: 'monospace')),
                   ],
                 ),

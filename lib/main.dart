@@ -4,10 +4,10 @@ import 'package:flutter/services.dart';
 import 'theme.dart';
 import 'screens/login_page.dart';
 import 'screens/timeline_page.dart';
-import 'screens/scan_page.dart';
 import 'screens/garage_page.dart';
 import 'screens/settings_page.dart';
 import 'widgets/navbar.dart';
+import 'screens/vehicle_selection_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -112,7 +112,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScanPage(cameras: _cameras),
+                          builder: (context) => VehicleSelectionPage(cameras: _cameras),
                         ),
                       );
                     },
@@ -133,7 +133,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ScanPage(
+                            builder: (context) => VehicleSelectionPage(
                               cameras: _cameras,
                               preSelectedImage: File(image.path),
                             ),
