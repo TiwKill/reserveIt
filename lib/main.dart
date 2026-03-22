@@ -88,12 +88,12 @@ class _MainScaffoldState extends State<MainScaffold> {
             ),
             const SizedBox(height: 32),
             const Text(
-              'Analyze Tire',
+              'Select Module',
               style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
-              'Select a source for AI diagnostics',
+              'Choose an AI analysis tool',
               style: TextStyle(color: Colors.white54, fontSize: 14),
             ),
             const SizedBox(height: 32),
@@ -102,15 +102,15 @@ class _MainScaffoldState extends State<MainScaffold> {
                 Expanded(
                   child: _buildOptionCard(
                     context,
-                    icon: Icons.camera_alt_rounded,
-                    label: 'Camera',
+                    icon: Icons.troubleshoot_rounded,
+                    label: 'Predict',
                     color: AppTheme.primary,
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => VehicleSelectionPage(cameras: _cameras),
+                          builder: (context) => VehicleSelectionPage(cameras: _cameras, analysisType: 'predict'),
                         ),
                       );
                     },
@@ -120,18 +120,15 @@ class _MainScaffoldState extends State<MainScaffold> {
                 Expanded(
                   child: _buildOptionCard(
                     context,
-                    icon: Icons.photo_library_rounded,
-                    label: 'Gallery',
-                    color: Colors.blue,
+                    icon: Icons.document_scanner_rounded,
+                    label: 'OCR',
+                    color: Colors.purpleAccent,
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => VehicleSelectionPage(
-                            cameras: _cameras,
-                            isGalleryMode: true,
-                          ),
+                          builder: (context) => VehicleSelectionPage(cameras: _cameras, analysisType: 'ocr'),
                         ),
                       );
                     },

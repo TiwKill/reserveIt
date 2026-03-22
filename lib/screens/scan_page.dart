@@ -11,6 +11,7 @@ class ScanPage extends StatefulWidget {
   final File? preSelectedImage;
   final String? targetCarId;
   final String? targetCarName;
+  final String analysisType;
   
   const ScanPage({
     super.key, 
@@ -18,6 +19,7 @@ class ScanPage extends StatefulWidget {
     this.preSelectedImage,
     this.targetCarId,
     this.targetCarName,
+    this.analysisType = 'predict',
   });
 
   @override
@@ -68,8 +70,25 @@ class _ScanPageState extends State<ScanPage> {
 
   Future<void> _performPrediction(File file) async {
     setState(() => _isAnalyzing = true);
-    // Use the targetCarId passed from selection page or default to 1 (deprecated but for safety)
-    final result = await ApiService.predict(file, carId: widget.targetCarId ?? '1'); 
+    
+    Map<String, dynamic>? result;
+    if (widget.analysisType == 'ocr') {
+      final ocrResult = await ApiService.ocr(file, carId: widget.targetCarId ?? '1');
+      if (ocrResult != null) {
+        result = {
+          'ai_result': 'DOT ${ocrResult['dot_code'] ?? 'FOUND'}',
+          'confidence': 'W${ocrResult['week'] ?? '-'}/Y${ocrResult['year'] ?? '-'}',
+          'filename': ocrResult['image_url']?.split('/').last ?? 'OCR_IMG.jpg',
+          'image_url': ocrResult['image_url'],
+          'advice': ocrResult['advice'],
+          'is_ocr': true,
+        };
+      }
+    } else {
+      // Use the targetCarId passed from selection page or default to 1 (deprecated but for safety)
+      result = await ApiService.predict(file, carId: widget.targetCarId ?? '1'); 
+    }
+
     if (mounted) {
       setState(() {
         _predictionResult = result;
@@ -259,8 +278,12 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   Widget _buildResult() {
-    final String resultText = _predictionResult?['ai_result'] ?? 'Analyzing...';
-    final String confidence = _predictionResult?['confidence'] ?? '-%';
+    final String rawResult = _predictionResult?['ai_result'] ?? 'Analyzing...';
+    final String resultText = rawResult.isNotEmpty 
+        ? '${rawResult[0].toUpperCase()}${rawResult.substring(1).toLowerCase()}'
+        : rawResult;
+    final bool isNormal = resultText.toLowerCase() == 'normal';
+    final String confidence = _predictionResult?['confidence']?.toString() ?? '-%';
     
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
@@ -278,7 +301,20 @@ class _ScanPageState extends State<ScanPage> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    if (_capturedImage != null) Image.file(File(_capturedImage!.path), fit: BoxFit.cover),
+                    if (_predictionResult != null && _predictionResult!['image_url'] != null)
+                      Image.network(
+                        ApiService.getImageUrl(_predictionResult!['image_url']),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          // Fallback to local image if network image fails
+                          return _capturedImage != null
+                              ? Image.file(File(_capturedImage!.path), fit: BoxFit.cover)
+                              : const Center(child: Icon(Icons.broken_image, color: Colors.white54, size: 50));
+                        },
+                      )
+                    else if (_capturedImage != null)
+                      Image.file(File(_capturedImage!.path), fit: BoxFit.cover),
+                      
                     if (_isAnalyzing)
                        Container(color: Colors.black54, child: const Center(child: CircularProgressIndicator(color: AppTheme.primary))),
                     if (_predictionResult != null) ...[
@@ -296,7 +332,7 @@ class _ScanPageState extends State<ScanPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('DETECTED ISSUE', style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold)),
+                                Text(_predictionResult?['is_ocr'] == true ? 'DETECTED DOT' : 'DETECTED ISSUE', style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold)),
                                 Row(
                                   children: [
                                     Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle)),
@@ -343,7 +379,9 @@ class _ScanPageState extends State<ScanPage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                _buildMetric('Surface Integrity', resultText == 'Normal' ? 'Optimal' : resultText, resultText == 'Normal' ? 0.95 : 0.45, resultText == 'Normal' ? AppTheme.success : AppTheme.danger),
+                _predictionResult?['is_ocr'] == true
+                  ? _buildMetric('Tire Age Advice', _predictionResult!['advice'] ?? 'Unknown', 0.8, Colors.purpleAccent)
+                  : _buildMetric('Surface Integrity', isNormal ? 'Optimal' : resultText, isNormal ? 0.95 : 0.45, isNormal ? AppTheme.success : AppTheme.danger),
                 const SizedBox(height: 32),
                 Row(
                   children: [

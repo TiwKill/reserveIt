@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../theme.dart';
 import '../services/api_service.dart';
 import 'detail_page.dart';
-import 'dart:ui' as ui;
+
 
 class TimelinePage extends StatefulWidget {
   const TimelinePage({super.key});
@@ -42,20 +42,23 @@ class _TimelinePageState extends State<TimelinePage> {
 
   // Map API data to UI model
   Map<String, dynamic> _mapToUI(Map<String, dynamic> apiData, double percent) {
-    final String result = apiData['ai_result'] ?? 'Normal';
-    final Color color = result == 'Normal' ? AppTheme.success : (result == 'Worn Out' ? AppTheme.danger : AppTheme.warning);
+    final String rawResult = apiData['ai_result']?.toString() ?? 'Normal';
+    final String result = rawResult.isNotEmpty ? '${rawResult[0].toUpperCase()}${rawResult.substring(1).toLowerCase()}' : rawResult;
+    final bool isNormal = result.toLowerCase() == 'normal';
+    final Color color = isNormal ? AppTheme.success : (result.toLowerCase() == 'worn out' ? AppTheme.danger : AppTheme.warning);
     
     return {
       'id': apiData['id'].toString(),
       'car_id': apiData['car_id'],
       'title': result,
       'date': apiData['created_at'] != null ? DateTime.parse(apiData['created_at']).toString().substring(0, 10) : 'N/A',
-      'status': result == 'Normal' ? 'EXCELLENT' : result.toUpperCase(),
-      'icon': result == 'Normal' ? 'check' : 'warning',
+      'status': isNormal ? 'EXCELLENT' : result.toUpperCase(),
+      'icon': isNormal ? 'check' : 'warning',
       'color': color,
       'imageUrl': ApiService.getImageUrl(apiData['image_url']),
-      'wearLevel': (apiData['confidence'] ?? 90.0) / 100.0,
-      'badgeText': result == 'Normal' ? null : result,
+      'wearLevel': (apiData['confidence'] is num) ? (apiData['confidence'] / 100.0) : 
+                   (double.tryParse(apiData['confidence']?.toString().replaceAll('%', '') ?? '90') ?? 90.0) / 100.0,
+      'badgeText': isNormal ? null : result,
       'percent': percent, // Position on snake
     };
   }
@@ -175,80 +178,66 @@ class _TimelinePageState extends State<TimelinePage> {
       );
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double width = constraints.maxWidth;
-        final double timelineHeight = 200.0 * _timelineItems.length;
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _timelineItems.length,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      itemBuilder: (context, index) {
+        final apiData = _timelineItems[index];
+        final uiData = _mapToUI(apiData, 0.5);
+        final bool isActive = _activeDetailId == uiData['id'];
+        final bool isLast = index == _timelineItems.length - 1;
 
-        final path = Path();
-        path.moveTo(width * 0.5, 0);
-        
-        // Dynamic path based on count
-        for (int i = 0; i < _timelineItems.length; i++) {
-          final double h = (i + 1) * 200.0;
-          path.cubicTo(
-            i % 2 == 0 ? width * 0.1 : width * 0.9, h - 150,
-            i % 2 == 0 ? width * 0.9 : width * 0.1, h - 50,
-            width * 0.5, h,
-          );
-        }
-
-        final metrics = path.computeMetrics().first;
-
-        Widget buildNodeAt(Map<String, dynamic> apiData, int index) {
-          final double percent = (index + 0.5) / _timelineItems.length;
-          final uiData = _mapToUI(apiData, percent);
-          final pos = metrics.getTangentForOffset(metrics.length * percent)!.position;
-          final bool isActive = _activeDetailId == uiData['id'];
-
-          return Stack(
-            clipBehavior: Clip.none,
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Positioned(
-                left: pos.dx - 50,
-                top: pos.dy - 50,
-                child: GestureDetector(
-                  onTap: () => _toggleDetail(uiData['id']),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(uiData['date'].toString().toUpperCase(),
-                          style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                      const SizedBox(height: 8),
-                      _buildTimelineNodeIcon(
-                        color: uiData['color'],
-                        icon: uiData['icon'],
-                        badgeText: uiData['badgeText'],
-                        badgeOnTop: true,
-                        isActive: isActive,
+              // Timeline Line & Dot
+              Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 24),
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: uiData['color'].withOpacity(0.2),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: uiData['color'], width: 4),
+                      boxShadow: [
+                        BoxShadow(color: uiData['color'].withOpacity(0.4), blurRadius: 8),
+                      ],
+                    ),
+                  ),
+                  if (!isLast)
+                    Expanded(
+                      child: Container(
+                        width: 2,
+                        color: Colors.white.withOpacity(0.1),
+                        margin: const EdgeInsets.symmetric(vertical: 8),
                       ),
-                    ],
+                    ),
+                  if (isActive && isLast)
+                    const SizedBox(height: 16), // Padding for the last item if expanded
+                ],
+              ),
+              const SizedBox(width: 20),
+              // Content Card
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutCubic,
+                    child: isActive
+                        ? _buildDetailCard(context, uiData)
+                        : GestureDetector(
+                            onTap: () => _toggleDetail(uiData['id']),
+                            child: _buildSummaryCard(uiData),
+                          ).animate().fadeIn(delay: (50 * index).ms).slideX(begin: 0.1, end: 0),
                   ),
                 ),
               ),
-              if (isActive)
-                Positioned(
-                  left: 24,
-                  right: 24,
-                  top: pos.dy + 60,
-                  child: _buildDetailCard(context, uiData),
-                ),
-            ],
-          );
-        }
-
-        return SizedBox(
-          height: timelineHeight + (_activeDetailId != null ? 220 : 0),
-          width: width,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: TimelineSnakePainter(path: path),
-                ),
-              ),
-              ..._timelineItems.asMap().entries.map((entry) => buildNodeAt(entry.value, entry.key)),
             ],
           ),
         );
@@ -256,78 +245,57 @@ class _TimelinePageState extends State<TimelinePage> {
     );
   }
 
-  Widget _buildTimelineNodeIcon({
-    required Color color,
-    required String icon,
-    String? badgeText,
-    bool badgeOnTop = false,
-    bool isActive = false,
-  }) {
-    return Stack(
-      alignment: Alignment.center,
-      clipBehavior: Clip.none,
-      children: [
-        if (badgeText != null)
-          Positioned(
-            top: badgeOnTop ? -40 : null,
-            bottom: !badgeOnTop ? -40 : null,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(color: color.withOpacity(0.5), blurRadius: 20, offset: const Offset(0, 5))
-                ],
-              ),
-              child: Text(
-                badgeText.toUpperCase(),
-                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
-              ),
+  Widget _buildSummaryCard(Map<String, dynamic> data) {
+    final color = data['color'] as Color;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.02),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
-          ).animate().scale(curve: Curves.easeOutBack),
-
-        Container(
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
-        ).animate(onPlay: (c) => c.repeat()).scale(begin: const Offset(0.8, 0.8), end: const Offset(1.3, 1.3)).fadeOut(),
-
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-            border: Border.all(color: AppTheme.backgroundDark, width: 8),
-            boxShadow: [
-              BoxShadow(color: color.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 10))
-            ],
-          ),
-          child: Center(
             child: Icon(
-                    icon == 'warning' ? Icons.warning_rounded : Icons.check_rounded,
-                    color: Colors.white,
-                    size: 32,
-                  ),
+              data['icon'] == 'warning' ? Icons.warning_rounded : Icons.check_circle_rounded,
+              color: color,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(data['title'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 4),
+                Text(data['date'], style: const TextStyle(color: Colors.white38, fontSize: 12)),
+              ],
+            ),
+          ),
+          const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white24),
+        ],
+      ),
     );
   }
 
   Widget _buildDetailCard(BuildContext context, Map<String, dynamic> data) {
     final color = data['color'] as Color;
     return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DetailPage(data: data))),
+      onTap: () => _toggleDetail(data['id']), // Also close when tapped!
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: const Color(0xFF1E293B).withOpacity(0.9),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: color.withOpacity(0.3)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 30, offset: const Offset(0, 15))
+            BoxShadow(color: color.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 5))
           ],
         ),
         child: Column(
@@ -343,7 +311,10 @@ class _TimelinePageState extends State<TimelinePage> {
                     Text('Captured: ${data['date']}', style: const TextStyle(color: Colors.white38, fontSize: 10, fontStyle: FontStyle.italic)),
                   ],
                 ),
-                const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white24, size: 14),
+                GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DetailPage(data: data))),
+                  child: const Icon(Icons.open_in_new_rounded, color: Colors.white54, size: 20),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -366,9 +337,19 @@ class _TimelinePageState extends State<TimelinePage> {
                     children: [
                        Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('AI CONFIDENCE', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
-                          Text(data['status'], style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
+                          const Text('AI CONFIDENCE', style: TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              data['status'], 
+                              style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.right,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -388,40 +369,11 @@ class _TimelinePageState extends State<TimelinePage> {
             ),
             const SizedBox(height: 12),
             Center(
-              child: Text('Tap to view full report', style: TextStyle(color: color.withOpacity(0.7), fontSize: 10, fontWeight: FontWeight.bold)),
+              child: const Icon(Icons.keyboard_arrow_up_rounded, color: Colors.white24),
             ),
           ],
         ),
-      ).animate().fadeIn().moveY(begin: 20, end: 0),
+      ).animate().fadeIn().moveY(begin: 10, end: 0),
     );
   }
-}
-
-class TimelineSnakePainter extends CustomPainter {
-  final Path path;
-  TimelineSnakePainter({required this.path});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const double strokeWidth = 50;
-    final mainPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round
-      ..shader = ui.Gradient.linear(
-        Offset(size.width / 2, 0),
-        Offset(size.width / 2, size.height),
-        [
-          const Color(0xFFEF4444).withOpacity(0.4),
-          const Color(0xFFF59E0B).withOpacity(0.4),
-          const Color(0xFF10B981).withOpacity(0.4),
-        ],
-        [0.0, 0.5, 1.0],
-      );
-
-    canvas.drawPath(path, mainPaint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

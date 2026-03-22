@@ -10,13 +10,13 @@ import 'scan_page.dart';
 class VehicleSelectionPage extends StatefulWidget {
   final List<CameraDescription> cameras;
   final File? preSelectedImage;
-  final bool isGalleryMode;
+  final String analysisType;
 
   const VehicleSelectionPage({
     super.key,
     required this.cameras,
     this.preSelectedImage,
-    this.isGalleryMode = false,
+    this.analysisType = 'predict',
   });
 
   @override
@@ -45,32 +45,96 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
     }
   }
 
-  Future<void> _onVehicleSelected(Map<String, dynamic> car) async {
-    File? selectedFile = widget.preSelectedImage;
+  void _onVehicleSelected(Map<String, dynamic> car) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+          border: Border.all(color: Colors.white.withOpacity(0.1)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 32),
+            const Text('Select Image Source', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text('Vehicle: ${car['brand']} ${car['model']}', style: const TextStyle(color: Colors.white54, fontSize: 14)),
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildOptionCard(
+                    context,
+                    icon: Icons.camera_alt_rounded,
+                    label: 'Camera',
+                    color: AppTheme.primary,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _navigateToScan(car, null);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildOptionCard(
+                    context,
+                    icon: Icons.photo_library_rounded,
+                    label: 'Gallery',
+                    color: Colors.blue,
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final XFile? image = await _picker.pickImage(source: ImageSource.gallery, maxWidth: 1000, maxHeight: 1000, imageQuality: 85);
+                      if (image != null && mounted) {
+                        _navigateToScan(car, File(image.path));
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
 
-    // If we are in gallery mode, we must pick the image NOW after selecting the car
-    if (widget.isGalleryMode) {
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1000,
-        maxHeight: 1000,
-        imageQuality: 85,
-      );
-      
-      if (image == null) return; // User cancelled
-      selectedFile = File(image.path);
-    }
+  Widget _buildOptionCard(BuildContext context, {required IconData icon, required String label, required Color color, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.05)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 32),
+            const SizedBox(height: 12),
+            Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
 
-    if (!mounted) return;
-
+  void _navigateToScan(Map<String, dynamic> car, File? selectedFile) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ScanPage(
           cameras: widget.cameras,
-          preSelectedImage: selectedFile,
+          preSelectedImage: selectedFile ?? widget.preSelectedImage,
           targetCarId: car['id'].toString(),
           targetCarName: '${car['brand']} ${car['model']}',
+          analysisType: widget.analysisType,
         ),
       ),
     );
@@ -102,9 +166,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       child: Text(
-                        widget.isGalleryMode 
-                          ? 'Select a vehicle to upload from gallery' 
-                          : 'Select a vehicle to scan with camera',
+                        'Select a vehicle for ${widget.analysisType == 'ocr' ? 'OCR' : 'Tire Analysis'}',
                         style: const TextStyle(color: Colors.white54, fontSize: 14),
                       ),
                     ),

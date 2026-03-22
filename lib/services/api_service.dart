@@ -8,11 +8,18 @@ class ApiService {
   static const String baseUrl = 'https://multipoth.ddns.net/api/reserve_it';
   static const String minioBaseUrl = 'https://multipoth.ddns.net/minio';
 
-  // Helper to get full image URL
   static String getImageUrl(String? path) {
     if (path == null || path.isEmpty) return 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=400';
     if (path.startsWith('http')) return path;
-    return '$minioBaseUrl/$path';
+    
+    // URL-encode path segments to handle spaces and special characters
+    final encodedPath = path.split('/').map((s) => Uri.encodeComponent(s)).join('/');
+    
+    // Check if the path already starts with 'cars/' to avoid duplicates
+    if (path.startsWith('cars/')) {
+       return '$minioBaseUrl/$encodedPath';
+    }
+    return '$minioBaseUrl/cars/$encodedPath';
   }
 
   // === 1. Cars CRUD ===
@@ -129,6 +136,37 @@ class ApiService {
       return null;
     } catch (e) {
       debugPrint('Error predicting: $e');
+      return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> ocr(File imageFile, {String? carId}) async {
+    try {
+      final uri = Uri.parse('$baseUrl/ocr');
+      final request = http.MultipartRequest('POST', uri);
+      
+      request.files.add(await http.MultipartFile.fromPath(
+        'file', 
+        imageFile.path,
+        contentType: MediaType('image', 'jpeg'),
+      ));
+
+      if (carId != null) {
+        request.fields['car_id'] = carId;
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          return data['data'];
+        }
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error predicting OCR: $e');
       return null;
     }
   }
