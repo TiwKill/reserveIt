@@ -380,7 +380,29 @@ class _ScanPageState extends State<ScanPage> {
                 ),
                 const SizedBox(height: 24),
                 _predictionResult?['is_ocr'] == true
-                  ? _buildMetric('Tire Age Advice', _predictionResult!['advice'] ?? 'Unknown', 0.8, Colors.purpleAccent)
+                  ? Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.purpleAccent.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.purpleAccent.withOpacity(0.3)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: const [
+                              Icon(Icons.lightbulb_outline_rounded, color: Colors.purpleAccent, size: 16),
+                              SizedBox(width: 8),
+                              Text('AI ADVICE', style: TextStyle(color: Colors.purpleAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(_predictionResult!['advice'] ?? 'Unknown condition', style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5)),
+                        ],
+                      ),
+                    )
                   : _buildMetric('Surface Integrity', isNormal ? 'Optimal' : resultText, isNormal ? 0.95 : 0.45, isNormal ? AppTheme.success : AppTheme.danger),
                 const SizedBox(height: 32),
                 Row(
