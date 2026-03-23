@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../services/api_service.dart';
+import '../translations.dart';
 
 class DetailPage extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -16,7 +17,7 @@ class DetailPage extends StatelessWidget {
     }
     
     final double wearLevel = (data['wearLevel'] ?? 0.0) as double;
-    final String title = data['title'] ?? 'Analysis Report';
+    final String title = data['title'] ?? Translations.get('analysis_report');
     final String date = data['date'] ?? 'N/A';
     final String imageUrl = data['imageUrl'] ?? '';
     final String status = data['status'] ?? 'N/A';
@@ -52,7 +53,7 @@ class DetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(title, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-                            Text('Date captured: $date', style: const TextStyle(color: Colors.white38, fontSize: 14)),
+                            Text('${Translations.get('date_captured')}: $date', style: const TextStyle(color: Colors.white38, fontSize: 14)),
                           ],
                         ),
                       ),
@@ -64,7 +65,7 @@ class DetailPage extends StatelessWidget {
                     ],
                    ),
                    const SizedBox(height: 32),
-                   _buildSectionTitle('HEALTH STATUS'),
+                   _buildSectionTitle(Translations.get('health_status')),
                    const SizedBox(height: 12),
                    Container(
                      padding: const EdgeInsets.all(20),
@@ -78,7 +79,7 @@ class DetailPage extends StatelessWidget {
                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                            children: [
                              Text(status, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-                             Text('Prediction Confidence', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                             Text(Translations.get('prediction_confidence'), style: const TextStyle(color: Colors.white54, fontSize: 12)),
                            ],
                          ),
                          const SizedBox(height: 12),
@@ -95,19 +96,19 @@ class DetailPage extends StatelessWidget {
                      ),
                    ),
                    const SizedBox(height: 32),
-                   _buildSectionTitle('VEHICLE INFORMATION'),
+                   _buildSectionTitle(Translations.get('vehicle_information')),
                    const SizedBox(height: 12),
                    FutureBuilder<Map<String, dynamic>?>(
                      future: ApiService.getCar(data['car_id']?.toString() ?? ''),
                      builder: (context, snapshot) {
                        final carName = snapshot.hasData 
                          ? '${snapshot.data!['brand']} ${snapshot.data!['model']}'
-                         : 'Loading vehicle info...';
-                       return _buildInfoRow('Vehicle Name', carName);
+                         : Translations.get('loading_vehicle_info');
+                       return _buildInfoRow(Translations.get('vehicle_name'), carName);
                      },
                    ),
                    const SizedBox(height: 32),
-                   _buildSectionTitle('AI DIAGNOSIS'),
+                   _buildSectionTitle(Translations.get('ai_diagnosis')),
                    const SizedBox(height: 12),
                    Text(
                      _getAiDescription(status),
@@ -126,15 +127,18 @@ class DetailPage extends StatelessWidget {
   String _getAiDescription(String status) {
     switch (status.toUpperCase()) {
       case 'NORMAL':
-        return 'The tire surface appears healthy. No significant cracks, uneven wear, or dangerous patterns detected. Continue regular maintenance.';
+      case 'GOOD':
+      case 'EXCELLENT':
+        return Translations.get('desc_normal');
       case 'CRACKED':
-        return 'Signs of dry rot or structural aging detected on the sidewall. This can lead to sudden tire failure. Immediate inspection by a professional is recommended.';
+        return Translations.get('desc_cracked');
       case 'WORN OUT':
-        return 'The tread depth is below safe limits. Braking distance and wet surface traction are significantly reduced. Replacement is highly recommended.';
+      case 'DEFECTIVE':
+        return Translations.get('desc_worn_out');
       case 'UNEVEN WEAR':
-        return 'Detection of inconsistent tread patterns suggests alignment or suspension issues. Check wheel balance and alignment soon.';
+        return Translations.get('desc_uneven_wear');
       default:
-        return 'AI analysis complete. Please refer to the summarized status above for the primary diagnosis.';
+        return Translations.get('desc_default');
     }
   }
 

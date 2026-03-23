@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../theme.dart';
 import '../services/api_service.dart';
 import 'garage_form_page.dart';
+import '../translations.dart';
 
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});
@@ -62,15 +63,15 @@ class _GaragePageState extends State<GaragePage> {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Delete Vehicle?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(Translations.get('delete_title'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Text(
-          'Are you sure you want to remove ${car['brand']} ${car['model'] ?? ''} from your garage?',
+          '${Translations.get('delete_confirm')}\n(${car['brand']} ${car['model'] ?? ''})',
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL', style: TextStyle(color: Colors.white38, fontWeight: FontWeight.bold)),
+            child: Text(Translations.get('cancel').toUpperCase(), style: const TextStyle(color: Colors.white38, fontWeight: FontWeight.bold)),
           ),
           TextButton(
             onPressed: () async {
@@ -89,7 +90,7 @@ class _GaragePageState extends State<GaragePage> {
                 );
               }
             },
-            child: const Text('DELETE', style: TextStyle(color: AppTheme.danger, fontWeight: FontWeight.bold)),
+            child: Text(Translations.get('delete').toUpperCase(), style: const TextStyle(color: AppTheme.danger, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -109,8 +110,8 @@ class _GaragePageState extends State<GaragePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Your Garage', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
-                Text('${_vehicles.length} Vehicles'.toUpperCase(), style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                Text(Translations.get('my_garage'), style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
+                Text('${_vehicles.length} VEHICLES', style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
               ],
             ),
             const SizedBox(height: 24),
@@ -127,7 +128,7 @@ class _GaragePageState extends State<GaragePage> {
                     children: [
                       Icon(Icons.directions_car_filled_outlined, size: 64, color: Colors.white.withOpacity(0.05)),
                       const SizedBox(height: 16),
-                      const Text('Your garage is empty', style: TextStyle(color: Colors.white24, fontSize: 16)),
+                      Text(Translations.get('no_vehicles_yet'), style: const TextStyle(color: Colors.white24, fontSize: 16)),
                     ],
                   ),
                 ),
@@ -170,11 +171,11 @@ class _GaragePageState extends State<GaragePage> {
               child: const Icon(Icons.analytics_rounded, color: Colors.white, size: 24),
             ),
             const SizedBox(width: 12),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('TireGuard AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-                Text('VEHICLE MANAGEMENT', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                const Text('TireGuard AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                Text(Translations.get('managed_vehicles'), style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
               ],
             ),
           ],
@@ -304,7 +305,7 @@ class _GaragePageState extends State<GaragePage> {
             child: const Icon(Icons.add_rounded, color: Colors.white38, size: 32),
           ),
           const SizedBox(height: 12),
-          const Text('REGISTER NEW VEHICLE', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+          Text(Translations.get('add_vehicle'), style: const TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
         ],
       ),
     );

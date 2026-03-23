@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../theme.dart';
 import '../services/api_service.dart';
 import 'detail_page.dart';
+import '../translations.dart';
 
 
 class TimelinePage extends StatefulWidget {
@@ -44,21 +45,26 @@ class _TimelinePageState extends State<TimelinePage> {
   Map<String, dynamic> _mapToUI(Map<String, dynamic> apiData, double percent) {
     final String rawResult = apiData['ai_result']?.toString() ?? 'Normal';
     final String result = rawResult.isNotEmpty ? '${rawResult[0].toUpperCase()}${rawResult.substring(1).toLowerCase()}' : rawResult;
-    final bool isNormal = result.toLowerCase() == 'normal';
-    final Color color = isNormal ? AppTheme.success : (result.toLowerCase() == 'worn out' ? AppTheme.danger : AppTheme.warning);
+    final String lowerResult = result.toLowerCase();
+    
+    final bool isOCR = lowerResult.contains('dot') || (apiData['is_ocr'] == true);
+    final bool isSuccess = lowerResult == 'good' || lowerResult == 'normal';
+    final Color color = isOCR 
+        ? Colors.white38 
+        : (isSuccess ? AppTheme.success : AppTheme.warning);
     
     return {
       'id': apiData['id'].toString(),
       'car_id': apiData['car_id'],
       'title': result,
       'date': apiData['created_at'] != null ? DateTime.parse(apiData['created_at']).toString().substring(0, 10) : 'N/A',
-      'status': isNormal ? 'EXCELLENT' : result.toUpperCase(),
-      'icon': isNormal ? 'check' : 'warning',
+      'status': isOCR ? 'OCR SCAN' : (isSuccess ? 'EXCELLENT' : 'DEFECTIVE'),
+      'icon': isOCR ? 'history' : (isSuccess ? 'check' : 'warning'),
       'color': color,
       'imageUrl': ApiService.getImageUrl(apiData['image_url']),
       'wearLevel': (apiData['confidence'] is num) ? (apiData['confidence'] / 100.0) : 
                    (double.tryParse(apiData['confidence']?.toString().replaceAll('%', '') ?? '90') ?? 90.0) / 100.0,
-      'badgeText': isNormal ? null : result,
+      'badgeText': (isSuccess || isOCR) ? null : result,
       'percent': percent, // Position on snake
     };
   }
@@ -110,11 +116,11 @@ class _TimelinePageState extends State<TimelinePage> {
                   child: const Icon(Icons.analytics_rounded, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 12),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('TireGuard AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: -0.5)),
-                    Text('DIAGNOSTIC DASHBOARD', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                    const Text('TireGuard AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: -0.5)),
+                    Text(Translations.get('app_name_subtitle'), style: const TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                   ],
                 ),
               ],
@@ -142,17 +148,17 @@ class _TimelinePageState extends State<TimelinePage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('RECENT ANALYSIS', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                      Text(Translations.get('recent_analysis'), style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
                       const SizedBox(height: 4),
-                      Text(_timelineItems.isNotEmpty ? _timelineItems.first['ai_result'].toString().toUpperCase() : 'NO DATA',
+                      Text(_timelineItems.isNotEmpty ? _timelineItems.first['ai_result'].toString().toUpperCase() : Translations.get('no_data'),
                           style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
                     ],
                   ),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('System Status', style: TextStyle(color: Colors.white38, fontSize: 10, fontStyle: FontStyle.italic)),
-                      Text('ALGORITHMS READY', style: TextStyle(color: AppTheme.success, fontSize: 10, fontWeight: FontWeight.bold)),
+                      Text(Translations.get('system_status'), style: const TextStyle(color: Colors.white38, fontSize: 10, fontStyle: FontStyle.italic)),
+                      Text(Translations.get('algorithms_ready'), style: const TextStyle(color: AppTheme.success, fontSize: 10, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ],
@@ -172,7 +178,7 @@ class _TimelinePageState extends State<TimelinePage> {
           children: [
             Icon(Icons.history_rounded, size: 64, color: Colors.white.withOpacity(0.05)),
             const SizedBox(height: 16),
-            const Text('No scan history yet', style: TextStyle(color: Colors.white24)),
+            Text(Translations.get('no_scan_history'), style: const TextStyle(color: Colors.white24)),
           ],
         ),
       );
@@ -308,7 +314,7 @@ class _TimelinePageState extends State<TimelinePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(data['title'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text('Captured: ${data['date']}', style: const TextStyle(color: Colors.white38, fontSize: 10, fontStyle: FontStyle.italic)),
+                    Text('${Translations.get('captured')} ${data['date']}', style: const TextStyle(color: Colors.white38, fontSize: 10, fontStyle: FontStyle.italic)),
                   ],
                 ),
                 GestureDetector(
@@ -339,7 +345,7 @@ class _TimelinePageState extends State<TimelinePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('AI CONFIDENCE', style: TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold)),
+                          Text(Translations.get('ai_confidence'), style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold)),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../theme.dart';
+import '../translations.dart';
 
 class CustomNavbar extends StatelessWidget {
   final int currentIndex;
@@ -48,14 +49,14 @@ class CustomNavbar extends StatelessWidget {
                         context,
                         index: 0,
                         icon: Icons.route_rounded,
-                        label: 'Timeline',
+                        label: Translations.get('nav_timeline'),
                       ),
                       const SizedBox(width: 80), // Spacer for FAB
                       _buildNavItem(
                         context,
                         index: 1,
                         icon: Icons.garage_rounded,
-                        label: 'Garage',
+                        label: Translations.get('nav_garage'),
                       ),
                     ],
                   ),

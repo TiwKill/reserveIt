@@ -5,6 +5,7 @@ import '../theme.dart';
 import '../widgets/navbar.dart';
 import '../services/api_service.dart';
 import 'dart:io';
+import '../translations.dart';
 
 class ScanPage extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -189,7 +190,7 @@ class _ScanPageState extends State<ScanPage> {
                   decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
                 ).animate(onPlay: (controller) => controller.repeat()).fade(duration: 800.ms, begin: 0.3, end: 1.0),
                 const SizedBox(width: 8),
-                const Text('AI SCANNER ACTIVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: AppTheme.primary)),
+                Text(Translations.get('ai_scanner_active'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: AppTheme.primary)),
               ],
             ),
           ),
@@ -257,13 +258,13 @@ class _ScanPageState extends State<ScanPage> {
                   if (_isAnalyzing)
                     Container(
                       color: Colors.black54,
-                      child: const Center(
+                      child: Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            CircularProgressIndicator(color: AppTheme.primary),
-                            SizedBox(height: 16),
-                            Text('ANALYZING...', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                            const CircularProgressIndicator(color: AppTheme.primary),
+                            const SizedBox(height: 16),
+                            Text(Translations.get('analyzing'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 2)),
                           ],
                         ),
                       ),
@@ -282,7 +283,13 @@ class _ScanPageState extends State<ScanPage> {
     final String resultText = rawResult.isNotEmpty 
         ? '${rawResult[0].toUpperCase()}${rawResult.substring(1).toLowerCase()}'
         : rawResult;
-    final bool isNormal = resultText.toLowerCase() == 'normal';
+    final String lowerResult = resultText.toLowerCase();
+    final bool isSuccess = lowerResult == 'good';
+    final bool isWarning = lowerResult == 'defective';
+    final bool isOCR = _predictionResult?['is_ocr'] == true;
+    final Color color = isOCR 
+        ? Colors.white54 
+        : (isSuccess ? AppTheme.success : (isWarning ? AppTheme.warning : AppTheme.danger));
     final String confidence = _predictionResult?['confidence']?.toString() ?? '-%';
     
     return SingleChildScrollView(
@@ -318,7 +325,7 @@ class _ScanPageState extends State<ScanPage> {
                     if (_isAnalyzing)
                        Container(color: Colors.black54, child: const Center(child: CircularProgressIndicator(color: AppTheme.primary))),
                     if (_predictionResult != null) ...[
-                      Positioned(top: 100, left: 100, child: _buildDetectionDot(AppTheme.primary)),
+                      Positioned(top: 100, left: 100, child: _buildDetectionDot(isOCR ? Colors.white54 : AppTheme.primary)),
                       Positioned(bottom: 16, left: 16, right: 16, child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -332,10 +339,10 @@ class _ScanPageState extends State<ScanPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(_predictionResult?['is_ocr'] == true ? 'DETECTED DOT' : 'DETECTED ISSUE', style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold)),
+                                Text(isOCR ? Translations.get('detected_dot') : Translations.get('detected_issue'), style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold)),
                                 Row(
                                   children: [
-                                    Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle)),
+                                    Container(width: 8, height: 8, decoration: BoxDecoration(color: isOCR ? Colors.white54 : AppTheme.primary, shape: BoxShape.circle)),
                                     const SizedBox(width: 8),
                                     Text(resultText, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                   ],
@@ -344,8 +351,8 @@ class _ScanPageState extends State<ScanPage> {
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(8)),
-                              child: Text('$confidence Confidence', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                              decoration: BoxDecoration(color: isOCR ? Colors.white24 : AppTheme.primary, borderRadius: BorderRadius.circular(8)),
+                              child: Text('$confidence ${Translations.get('confidence')}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),
@@ -370,8 +377,8 @@ class _ScanPageState extends State<ScanPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Data Analytics', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
-                          Text(widget.targetCarName ?? 'Quick Scan', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text(Translations.get('data_analytics'), style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                          Text(widget.targetCarName ?? Translations.get('quick_scan'), style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -384,18 +391,18 @@ class _ScanPageState extends State<ScanPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.purpleAccent.withOpacity(0.1),
+                        color: Colors.white.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.purpleAccent.withOpacity(0.3)),
+                        border: Border.all(color: Colors.white.withOpacity(0.1)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            children: const [
-                              Icon(Icons.lightbulb_outline_rounded, color: Colors.purpleAccent, size: 16),
-                              SizedBox(width: 8),
-                              Text('AI ADVICE', style: TextStyle(color: Colors.purpleAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                            children: [
+                              const Icon(Icons.lightbulb_outline_rounded, color: Colors.white70, size: 16),
+                              const SizedBox(width: 8),
+                              Text(Translations.get('ai_advice'), style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -403,7 +410,12 @@ class _ScanPageState extends State<ScanPage> {
                         ],
                       ),
                     )
-                  : _buildMetric('Surface Integrity', isNormal ? 'Optimal' : resultText, isNormal ? 0.95 : 0.45, isNormal ? AppTheme.success : AppTheme.danger),
+                  : _buildMetric(
+                      Translations.get('surface_integrity'), 
+                      isSuccess ? Translations.get('optimal') : resultText, 
+                      isSuccess ? 0.95 : (isWarning ? 0.65 : 0.45), 
+                      color
+                    ),
                 const SizedBox(height: 32),
                 Row(
                   children: [
@@ -416,7 +428,7 @@ class _ScanPageState extends State<ScanPage> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('FINISH', style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: Text(Translations.get('finish'), style: const TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],

@@ -6,6 +6,7 @@ import 'dart:io';
 import '../theme.dart';
 import '../services/api_service.dart';
 import 'scan_page.dart';
+import '../translations.dart';
 
 class VehicleSelectionPage extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -61,9 +62,9 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
           children: [
             Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 32),
-            const Text('Select Image Source', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(Translations.get('select_image_source'), style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text('Vehicle: ${car['brand']} ${car['model']}', style: const TextStyle(color: Colors.white54, fontSize: 14)),
+            Text('${Translations.get('vehicle')}: ${car['brand']} ${car['model']}', style: const TextStyle(color: Colors.white54, fontSize: 14)),
             const SizedBox(height: 32),
             Row(
               children: [
@@ -71,7 +72,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
                   child: _buildOptionCard(
                     context,
                     icon: Icons.camera_alt_rounded,
-                    label: 'Camera',
+                    label: Translations.get('camera'),
                     color: AppTheme.primary,
                     onTap: () {
                       Navigator.pop(context);
@@ -84,7 +85,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
                   child: _buildOptionCard(
                     context,
                     icon: Icons.photo_library_rounded,
-                    label: 'Gallery',
+                    label: Translations.get('gallery'),
                     color: Colors.blue,
                     onTap: () async {
                       Navigator.pop(context);
@@ -151,9 +152,9 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
         ),
-        title: const Text(
-          'SELECT VEHICLE',
-          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
+        title: Text(
+          Translations.get('select_vehicle'),
+          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
         ),
         centerTitle: true,
       ),
@@ -166,7 +167,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       child: Text(
-                        'Select a vehicle for ${widget.analysisType == 'ocr' ? 'OCR' : 'Tire Analysis'}',
+                        widget.analysisType == 'ocr' ? Translations.get('select_vehicle_for_ocr') : Translations.get('select_vehicle_for_predict'),
                         style: const TextStyle(color: Colors.white54, fontSize: 14),
                       ),
                     ),
@@ -195,11 +196,11 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
         children: [
           Icon(Icons.directions_car_filled_outlined, size: 64, color: Colors.white.withOpacity(0.05)),
           const SizedBox(height: 16),
-          const Text('No vehicles found', style: TextStyle(color: Colors.white24, fontSize: 16)),
+          Text(Translations.get('no_vehicles_found'), style: const TextStyle(color: Colors.white24, fontSize: 16)),
           const SizedBox(height: 24),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('BACK TO MENU', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold)),
+            child: Text(Translations.get('back_to_menu'), style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -243,7 +244,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
                 children: [
                   Text('${car['brand']} ${car['model']}', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(car['plate_number'] ?? 'No Plate', style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                  Text(car['plate_number'] ?? Translations.get('no_plate'), style: const TextStyle(color: Colors.white38, fontSize: 12)),
                 ],
               ),
             ),

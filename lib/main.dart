@@ -8,6 +8,7 @@ import 'screens/garage_page.dart';
 import 'screens/settings_page.dart';
 import 'widgets/navbar.dart';
 import 'screens/vehicle_selection_page.dart';
+import 'translations.dart';
 
 late List<CameraDescription> _cameras;
 
@@ -33,17 +34,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'TireGuard AI',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.dark,
-      initialRoute: '/home',
-      routes: {
-        '/': (context) => const LoginPage(),
-        '/home': (context) => const MainScaffold(),
-        '/settings': (context) => const SettingsPage(),
+    return ValueListenableBuilder<String>(
+      valueListenable: Translations.currentLang,
+      builder: (context, lang, child) {
+        return MaterialApp(
+          title: 'TireGuard AI',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeMode.dark,
+          initialRoute: '/home',
+          routes: {
+            '/': (context) => const LoginPage(),
+            '/home': (context) => const MainScaffold(),
+            '/settings': (context) => const SettingsPage(),
+          },
+        );
       },
     );
   }
@@ -87,14 +93,14 @@ class _MainScaffoldState extends State<MainScaffold> {
               ),
             ),
             const SizedBox(height: 32),
-            const Text(
-              'Select Module',
-              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              Translations.get('select_module'),
+              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Choose an AI analysis tool',
-              style: TextStyle(color: Colors.white54, fontSize: 14),
+            Text(
+              Translations.get('choose_analysis_tool'),
+              style: const TextStyle(color: Colors.white54, fontSize: 14),
             ),
             const SizedBox(height: 32),
             Row(
@@ -103,7 +109,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                   child: _buildOptionCard(
                     context,
                     icon: Icons.troubleshoot_rounded,
-                    label: 'Predict',
+                    label: Translations.get('module_predict'),
                     color: AppTheme.primary,
                     onTap: () {
                       Navigator.pop(context);
@@ -121,7 +127,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                   child: _buildOptionCard(
                     context,
                     icon: Icons.document_scanner_rounded,
-                    label: 'OCR',
+                    label: Translations.get('module_ocr'),
                     color: Colors.purpleAccent,
                     onTap: () {
                       Navigator.pop(context);

@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
 import '../theme.dart';
 import '../services/api_service.dart';
+import '../translations.dart';
 
 class GarageFormPage extends StatefulWidget {
   final Map<String, dynamic>? initialData;
@@ -80,16 +81,16 @@ class _GarageFormPageState extends State<GarageFormPage> {
           children: [
             Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 24),
-            const Text('Upload Vehicle Photo', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(Translations.get('upload_vehicle_photo'), style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 24),
             Row(
               children: [
-                Expanded(child: _buildSourceOption(Icons.camera_alt_rounded, 'Camera', AppTheme.primary, () {
+                Expanded(child: _buildSourceOption(Icons.camera_alt_rounded, Translations.get('camera'), AppTheme.primary, () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.camera);
                 })),
                 const SizedBox(width: 16),
-                Expanded(child: _buildSourceOption(Icons.photo_library_rounded, 'Gallery', Colors.blue, () {
+                Expanded(child: _buildSourceOption(Icons.photo_library_rounded, Translations.get('gallery'), Colors.blue, () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.gallery);
                 })),
@@ -189,7 +190,7 @@ class _GarageFormPageState extends State<GarageFormPage> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
         ),
         title: Text(
-          isEdit ? 'EDIT VEHICLE' : 'NEW VEHICLE',
+          isEdit ? Translations.get('edit_vehicle') : Translations.get('add_new_vehicle'),
           style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
         ),
         centerTitle: true,
@@ -229,7 +230,7 @@ class _GarageFormPageState extends State<GarageFormPage> {
                         const SizedBox(height: 48),
                         Icon(Icons.add_a_photo_rounded, color: Colors.white.withOpacity(0.5), size: 48),
                         const SizedBox(height: 12),
-                        Text('TAP TO CHANGE PHOTO', style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                        Text(Translations.get('tap_to_change_photo'), style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
                       ],
                     ),
                   ),
@@ -253,21 +254,21 @@ class _GarageFormPageState extends State<GarageFormPage> {
                           flex: 2,
                           child: _buildTextField(
                             controller: _brandController,
-                            label: 'BRAND',
-                            hint: 'e.g. Toyota',
+                            label: Translations.get('brand_label'),
+                            hint: Translations.get('brand_hint'),
                             icon: Icons.factory_rounded,
-                            validator: (v) => v!.isEmpty ? 'Required' : null,
+                            validator: (v) => v!.isEmpty ? Translations.get('required') : null,
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: _buildTextField(
                             controller: _yearController,
-                            label: 'YEAR',
+                            label: Translations.get('year_label'),
                             hint: '2022',
                             icon: Icons.calendar_today_rounded,
                             keyboardType: TextInputType.number,
-                            validator: (v) => v!.isEmpty ? 'Required' : null,
+                            validator: (v) => v!.isEmpty ? Translations.get('required') : null,
                           ),
                         ),
                       ],
@@ -275,18 +276,18 @@ class _GarageFormPageState extends State<GarageFormPage> {
                     const SizedBox(height: 24),
                     _buildTextField(
                       controller: _modelController,
-                      label: 'MODEL',
-                      hint: 'e.g. Camry',
+                      label: Translations.get('model_label'),
+                      hint: Translations.get('model_hint'),
                       icon: Icons.directions_car_rounded,
-                      validator: (v) => v!.isEmpty ? 'Required' : null,
+                      validator: (v) => v!.isEmpty ? Translations.get('required') : null,
                     ),
                     const SizedBox(height: 24),
                     _buildTextField(
                       controller: _plateController,
-                      label: 'PLATE NUMBER',
-                      hint: 'กข 1234',
+                      label: Translations.get('plate_label'),
+                      hint: Translations.get('plate_hint'),
                       icon: Icons.branding_watermark_rounded,
-                      validator: (v) => v!.isEmpty ? 'Required' : null,
+                      validator: (v) => v!.isEmpty ? Translations.get('required') : null,
                     ),
                     
                     const SizedBox(height: 48),
@@ -305,7 +306,7 @@ class _GarageFormPageState extends State<GarageFormPage> {
                         child: Center(
                           child: _isSaving
                             ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                            : Text(isEdit ? 'UPDATE VEHICLE' : 'REGISTER VEHICLE', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1)),
+                            : Text(isEdit ? Translations.get('update_vehicle') : Translations.get('register_vehicle'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1)),
                         ),
                       ),
                     ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.95, 0.95)),
