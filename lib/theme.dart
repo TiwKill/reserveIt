@@ -1,7 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+extension AppThemeExtension on BuildContext {
+  bool get isDark => Theme.of(this).brightness == Brightness.dark;
+
+  Color get bgColor => isDark ? AppTheme.backgroundDark : AppTheme.backgroundLight;
+  Color get surfaceColor => isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight;
+
+  Color get textMain => isDark ? Colors.white : Colors.black87;
+  Color get textSec => isDark ? Colors.white54 : Colors.black54;
+  Color get textTertiary => isDark ? Colors.white38 : Colors.black38;
+  Color get textFaded => isDark ? Colors.white24 : Colors.black26;
+  Color get borderFaded => isDark ? Colors.white12 : Colors.black12;
+  
+  Color get cardColor => isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
+}
+
 class AppTheme {
+  static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier<ThemeMode>(ThemeMode.dark);
+
+  static void toggleTheme() {
+    themeNotifier.value = themeNotifier.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+  }
   static const Color primary = Color(0xFFEF4444);
   static const Color backgroundLight = Color(0xFFF8FAFC);
   static const Color backgroundDark = Color(0xFF0F172A);
@@ -21,9 +41,9 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      scaffoldBackgroundColor: backgroundLight,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,
-        background: backgroundLight,
         surface: surfaceLight,
       ),
       textTheme: GoogleFonts.outfitTextTheme().apply(
@@ -37,10 +57,10 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      scaffoldBackgroundColor: backgroundDark,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,
         brightness: Brightness.dark,
-        background: backgroundDark,
         surface: surfaceDark,
       ),
       textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme).apply(

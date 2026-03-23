@@ -124,7 +124,7 @@ class _ScanPageState extends State<ScanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: context.bgColor,
       body: Stack(
         children: [
           _buildBackgroundGrid(),
@@ -167,19 +167,19 @@ class _ScanPageState extends State<ScanPage> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: context.cardColor,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                border: Border.all(color: context.borderFaded),
               ),
-              child: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+              child: Icon(Icons.arrow_back_rounded, color: context.textMain),
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
+              color: context.cardColor,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              border: Border.all(color: context.borderFaded),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -264,7 +264,7 @@ class _ScanPageState extends State<ScanPage> {
                           children: [
                             const CircularProgressIndicator(color: AppTheme.primary),
                             const SizedBox(height: 16),
-                            Text(Translations.get('analyzing'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                            Text(Translations.get('analyzing'), style: TextStyle(color: context.textMain, fontWeight: FontWeight.bold, letterSpacing: 2)),
                           ],
                         ),
                       ),
@@ -339,20 +339,20 @@ class _ScanPageState extends State<ScanPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(isOCR ? Translations.get('detected_dot') : Translations.get('detected_issue'), style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold)),
+                                Text(isOCR ? Translations.get('detected_dot') : Translations.get('detected_issue'), style: TextStyle(color: context.textSec, fontSize: 10, fontWeight: FontWeight.bold)),
                                 Row(
                                   children: [
-                                    Container(width: 8, height: 8, decoration: BoxDecoration(color: isOCR ? Colors.white54 : AppTheme.primary, shape: BoxShape.circle)),
+                                    Container(width: 8, height: 8, decoration: BoxDecoration(color: isOCR ? context.textSec : AppTheme.primary, shape: BoxShape.circle)),
                                     const SizedBox(width: 8),
-                                    Text(resultText, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    Text(resultText, style: TextStyle(color: context.textMain, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                               ],
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(color: isOCR ? Colors.white24 : AppTheme.primary, borderRadius: BorderRadius.circular(8)),
-                              child: Text('$confidence ${Translations.get('confidence')}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                              decoration: BoxDecoration(color: isOCR ? context.textFaded : AppTheme.primary, borderRadius: BorderRadius.circular(8)),
+                              child: Text('$confidence ${Translations.get('confidence')}', style: TextStyle(color: context.textMain, fontSize: 10, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),
@@ -366,7 +366,7 @@ class _ScanPageState extends State<ScanPage> {
           const SizedBox(height: 24),
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(color: AppTheme.surfaceDark, borderRadius: BorderRadius.circular(32)),
+            decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(32)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -377,12 +377,12 @@ class _ScanPageState extends State<ScanPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(Translations.get('data_analytics'), style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
-                          Text(widget.targetCarName ?? Translations.get('quick_scan'), style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text(Translations.get('data_analytics'), style: TextStyle(color: context.textTertiary, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                          Text(widget.targetCarName ?? Translations.get('quick_scan'), style: TextStyle(color: context.textMain, fontSize: 18, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
-                    Text('#${_predictionResult?['filename']?.substring(0, 8) ?? 'TR-SCAN'}', style: const TextStyle(color: Colors.white30, fontSize: 10, fontFamily: 'monospace')),
+                    Text('#${_predictionResult?['filename']?.substring(0, 8) ?? 'TR-SCAN'}', style: TextStyle(color: context.textTertiary, fontSize: 10, fontFamily: 'monospace')),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -400,17 +400,18 @@ class _ScanPageState extends State<ScanPage> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.lightbulb_outline_rounded, color: Colors.white70, size: 16),
+                              Icon(Icons.lightbulb_outline_rounded, color: context.textSec, size: 16),
                               const SizedBox(width: 8),
-                              Text(Translations.get('ai_advice'), style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                              Text(Translations.get('ai_advice'), style: TextStyle(color: context.textSec, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(_predictionResult!['advice'] ?? 'Unknown condition', style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5)),
+                          Text(_predictionResult!['advice'] ?? 'Unknown condition', style: TextStyle(color: context.textMain, fontSize: 14, height: 1.5)),
                         ],
                       ),
                     )
                   : _buildMetric(
+                      context,
                       Translations.get('surface_integrity'), 
                       isSuccess ? Translations.get('optimal') : resultText, 
                       isSuccess ? 0.95 : (isWarning ? 0.65 : 0.45), 
@@ -422,8 +423,8 @@ class _ScanPageState extends State<ScanPage> {
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.05),
-                          foregroundColor: Colors.white,
+                          backgroundColor: context.cardColor,
+                          foregroundColor: context.textMain,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
@@ -454,15 +455,15 @@ class _ScanPageState extends State<ScanPage> {
     ).animate(onPlay: (c) => c.repeat()).scale(begin: const Offset(1, 1), end: const Offset(1.5, 1.5), duration: 1.seconds).fade(begin: 1.0, end: 0.0);
   }
 
-  Widget _buildMetric(String label, String value, double progress, Color color) {
+  Widget _buildMetric(BuildContext context, String label, String value, double progress, Color color) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(color: Colors.white54, fontSize: 13)),
-            Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(label, style: TextStyle(color: context.textSec, fontSize: 13)),
+            Text(value, style: TextStyle(color: context.textMain, fontWeight: FontWeight.bold)),
           ],
         ),
         const SizedBox(height: 8),
@@ -470,7 +471,7 @@ class _ScanPageState extends State<ScanPage> {
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: progress,
-            backgroundColor: Colors.white10,
+            backgroundColor: context.borderFaded,
             valueColor: AlwaysStoppedAnimation<Color>(color),
             minHeight: 6,
           ),
@@ -483,7 +484,7 @@ class _ScanPageState extends State<ScanPage> {
 class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.white.withOpacity(0.05)..strokeWidth = 1;
+    final paint = Paint()..color = Colors.grey.withOpacity(0.05)..strokeWidth = 1;
     const double spacing = 30;
     for (double i = 0; i <= size.width; i += spacing) {
       canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);

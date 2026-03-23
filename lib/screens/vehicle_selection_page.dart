@@ -53,18 +53,18 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
       builder: (context) => Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
+          color: context.surfaceColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: context.borderFaded),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: context.textFaded, borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 32),
-            Text(Translations.get('select_image_source'), style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(Translations.get('select_image_source'), style: TextStyle(color: context.textMain, fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text('${Translations.get('vehicle')}: ${car['brand']} ${car['model']}', style: const TextStyle(color: Colors.white54, fontSize: 14)),
+            Text('${Translations.get('vehicle')}: ${car['brand']} ${car['model']}', style: TextStyle(color: context.textSec, fontSize: 14)),
             const SizedBox(height: 32),
             Row(
               children: [
@@ -111,15 +111,15 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          border: Border.all(color: context.cardColor),
         ),
         child: Column(
           children: [
             Icon(icon, color: color, size: 32),
             const SizedBox(height: 12),
-            Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(label, style: TextStyle(color: context.textMain, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -144,17 +144,17 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: context.bgColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textMain),
         ),
         title: Text(
           Translations.get('select_vehicle'),
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
+          style: TextStyle(color: context.textMain, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
         ),
         centerTitle: true,
       ),
@@ -168,7 +168,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       child: Text(
                         widget.analysisType == 'ocr' ? Translations.get('select_vehicle_for_ocr') : Translations.get('select_vehicle_for_predict'),
-                        style: const TextStyle(color: Colors.white54, fontSize: 14),
+                        style: TextStyle(color: context.textSec, fontSize: 14),
                       ),
                     ),
                     Expanded(
@@ -194,9 +194,9 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.directions_car_filled_outlined, size: 64, color: Colors.white.withOpacity(0.05)),
+          Icon(Icons.directions_car_filled_outlined, size: 64, color: context.cardColor),
           const SizedBox(height: 16),
-          Text(Translations.get('no_vehicles_found'), style: const TextStyle(color: Colors.white24, fontSize: 16)),
+          Text(Translations.get('no_vehicles_found'), style: TextStyle(color: context.textFaded, fontSize: 16)),
           const SizedBox(height: 24),
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -217,11 +217,11 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          border: Border.all(color: context.cardColor),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 5)),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 5)),
           ],
         ),
         child: Row(
@@ -242,9 +242,9 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${car['brand']} ${car['model']}', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text('${car['brand']} ${car['model']}', style: TextStyle(color: context.textMain, fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(car['plate_number'] ?? Translations.get('no_plate'), style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                  Text(car['plate_number'] ?? Translations.get('no_plate'), style: TextStyle(color: context.textTertiary, fontSize: 12)),
                 ],
               ),
             ),

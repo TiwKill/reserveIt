@@ -23,19 +23,19 @@ class DetailPage extends StatelessWidget {
     final String status = data['status'] ?? 'N/A';
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: context.bgColor,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
-            backgroundColor: AppTheme.backgroundDark,
+            backgroundColor: context.bgColor,
             flexibleSpace: FlexibleSpaceBar(
               background: Hero(
                 tag: 'image_${data['id']}',
                 child: imageUrl.isNotEmpty 
                   ? Image.network(imageUrl, fit: BoxFit.cover)
-                  : Container(color: Colors.white10, child: const Icon(Icons.image_not_supported, color: Colors.white24)),
+                  : Container(color: context.borderFaded, child: Icon(Icons.image_not_supported, color: context.textFaded)),
               ),
             ),
           ),
@@ -52,8 +52,8 @@ class DetailPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(title, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-                            Text('${Translations.get('date_captured')}: $date', style: const TextStyle(color: Colors.white38, fontSize: 14)),
+                            Text(title, style: TextStyle(color: context.textMain, fontSize: 24, fontWeight: FontWeight.bold)),
+                            Text('${Translations.get('date_captured')}: $date', style: TextStyle(color: context.textTertiary, fontSize: 14)),
                           ],
                         ),
                       ),
@@ -65,12 +65,12 @@ class DetailPage extends StatelessWidget {
                     ],
                    ),
                    const SizedBox(height: 32),
-                   _buildSectionTitle(Translations.get('health_status')),
+                   _buildSectionTitle(context, Translations.get('health_status')),
                    const SizedBox(height: 12),
                    Container(
                      padding: const EdgeInsets.all(20),
                      decoration: BoxDecoration(
-                       color: Colors.white.withOpacity(0.05),
+                       color: context.cardColor,
                        borderRadius: BorderRadius.circular(24),
                      ),
                      child: Column(
@@ -79,7 +79,7 @@ class DetailPage extends StatelessWidget {
                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                            children: [
                              Text(status, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-                             Text(Translations.get('prediction_confidence'), style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                             Text(Translations.get('prediction_confidence'), style: TextStyle(color: context.textSec, fontSize: 12)),
                            ],
                          ),
                          const SizedBox(height: 12),
@@ -88,7 +88,7 @@ class DetailPage extends StatelessWidget {
                            child: LinearProgressIndicator(
                              value: wearLevel,
                              minHeight: 8,
-                             backgroundColor: Colors.white10,
+                             backgroundColor: context.borderFaded,
                              valueColor: AlwaysStoppedAnimation<Color>(color),
                            ),
                          ),
@@ -96,7 +96,7 @@ class DetailPage extends StatelessWidget {
                      ),
                    ),
                    const SizedBox(height: 32),
-                   _buildSectionTitle(Translations.get('vehicle_information')),
+                   _buildSectionTitle(context, Translations.get('vehicle_information')),
                    const SizedBox(height: 12),
                    FutureBuilder<Map<String, dynamic>?>(
                      future: ApiService.getCar(data['car_id']?.toString() ?? ''),
@@ -104,15 +104,15 @@ class DetailPage extends StatelessWidget {
                        final carName = snapshot.hasData 
                          ? '${snapshot.data!['brand']} ${snapshot.data!['model']}'
                          : Translations.get('loading_vehicle_info');
-                       return _buildInfoRow(Translations.get('vehicle_name'), carName);
+                       return _buildInfoRow(context, Translations.get('vehicle_name'), carName);
                      },
                    ),
                    const SizedBox(height: 32),
-                   _buildSectionTitle(Translations.get('ai_diagnosis')),
+                   _buildSectionTitle(context, Translations.get('ai_diagnosis')),
                    const SizedBox(height: 12),
                    Text(
                      _getAiDescription(status),
-                     style: const TextStyle(color: Colors.white70, fontSize: 16, height: 1.5),
+                     style: TextStyle(color: context.textSec, fontSize: 16, height: 1.5),
                    ),
                    const SizedBox(height: 48),
                 ],
@@ -142,18 +142,18 @@ class DetailPage extends StatelessWidget {
     }
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(title, style: const TextStyle(color: Colors.white24, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5));
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Text(title, style: TextStyle(color: context.textFaded, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5));
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 16)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(color: context.textSec, fontSize: 16)),
+          Text(value, style: TextStyle(color: context.textMain, fontSize: 16, fontWeight: FontWeight.bold)),
         ],
       ),
     );

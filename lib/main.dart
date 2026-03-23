@@ -37,17 +37,22 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder<String>(
       valueListenable: Translations.currentLang,
       builder: (context, lang, child) {
-        return MaterialApp(
-          title: 'TireGuard AI',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.dark,
-          initialRoute: '/home',
-          routes: {
-            '/': (context) => const LoginPage(),
-            '/home': (context) => const MainScaffold(),
-            '/settings': (context) => const SettingsPage(),
+        return ValueListenableBuilder<ThemeMode>(
+          valueListenable: AppTheme.themeNotifier,
+          builder: (context, themeMode, _) {
+            return MaterialApp(
+              title: 'TireGuard AI',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: themeMode,
+              initialRoute: '/home',
+              routes: {
+                '/': (context) => const LoginPage(),
+                '/home': (context) => const MainScaffold(),
+                '/settings': (context) => const SettingsPage(),
+              },
+            );
           },
         );
       },
@@ -77,9 +82,9 @@ class _MainScaffoldState extends State<MainScaffold> {
       builder: (context) => Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
+          color: context.surfaceColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: context.borderFaded),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -88,19 +93,19 @@ class _MainScaffoldState extends State<MainScaffold> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white24,
+                color: context.textFaded,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 32),
             Text(
               Translations.get('select_module'),
-              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.textMain, fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               Translations.get('choose_analysis_tool'),
-              style: const TextStyle(color: Colors.white54, fontSize: 14),
+              style: TextStyle(color: context.textSec, fontSize: 14),
             ),
             const SizedBox(height: 32),
             Row(
@@ -155,15 +160,15 @@ class _MainScaffoldState extends State<MainScaffold> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          border: Border.all(color: context.cardColor),
         ),
         child: Column(
           children: [
             Icon(icon, color: color, size: 32),
             const SizedBox(height: 12),
-            Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(label, style: TextStyle(color: context.textMain, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -173,7 +178,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: context.bgColor,
       body: Stack(
         children: [
           IndexedStack(

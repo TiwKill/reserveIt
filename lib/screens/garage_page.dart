@@ -61,22 +61,22 @@ class _GaragePageState extends State<GaragePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: context.surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(Translations.get('delete_title'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(Translations.get('delete_title'), style: TextStyle(color: context.textMain, fontWeight: FontWeight.bold)),
         content: Text(
           '${Translations.get('delete_confirm')}\n(${car['brand']} ${car['model'] ?? ''})',
-          style: const TextStyle(color: Colors.white70),
+          style: TextStyle(color: context.textSec),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(Translations.get('cancel').toUpperCase(), style: const TextStyle(color: Colors.white38, fontWeight: FontWeight.bold)),
+            child: Text(Translations.get('cancel').toUpperCase(), style: TextStyle(color: context.textTertiary, fontWeight: FontWeight.bold)),
           ),
           TextButton(
             onPressed: () async {
               final success = await ApiService.deleteCar(car['id']);
-              if (!mounted) return;
+              if (!context.mounted) return;
               Navigator.pop(context);
               if (success) {
                 _fetchVehicles();
@@ -100,7 +100,7 @@ class _GaragePageState extends State<GaragePage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppTheme.backgroundDark,
+      color: context.bgColor,
       child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
@@ -110,8 +110,8 @@ class _GaragePageState extends State<GaragePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(Translations.get('my_garage'), style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
-                Text('${_vehicles.length} VEHICLES', style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                Text(Translations.get('my_garage'), style: TextStyle(color: context.textMain, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
+                Text('${_vehicles.length} VEHICLES', style: TextStyle(color: context.textTertiary, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
               ],
             ),
             const SizedBox(height: 24),
@@ -126,9 +126,9 @@ class _GaragePageState extends State<GaragePage> {
                 child: Center(
                   child: Column(
                     children: [
-                      Icon(Icons.directions_car_filled_outlined, size: 64, color: Colors.white.withOpacity(0.05)),
+                      Icon(Icons.directions_car_filled_outlined, size: 64, color: context.cardColor),
                       const SizedBox(height: 16),
-                      Text(Translations.get('no_vehicles_yet'), style: const TextStyle(color: Colors.white24, fontSize: 16)),
+                      Text(Translations.get('no_vehicles_yet'), style: TextStyle(color: context.textFaded, fontSize: 16)),
                     ],
                   ),
                 ),
@@ -148,7 +148,7 @@ class _GaragePageState extends State<GaragePage> {
             const SizedBox(height: 24),
             GestureDetector(
               onTap: _addVehicle,
-              child: _buildAddVehicleButton(),
+              child: _buildAddVehicleButton(context),
             ),
           ],
         ),
@@ -174,15 +174,15 @@ class _GaragePageState extends State<GaragePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('TireGuard AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-                Text(Translations.get('managed_vehicles'), style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                Text('TireGuard AI', style: TextStyle(color: context.textMain, fontWeight: FontWeight.bold, fontSize: 18)),
+                Text(Translations.get('managed_vehicles'), style: TextStyle(color: context.textTertiary, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
               ],
             ),
           ],
         ),
         IconButton(
           onPressed: () => Navigator.pushNamed(context, '/settings'),
-          icon: const Icon(Icons.settings_rounded, color: Colors.white38, size: 24),
+          icon: Icon(Icons.settings_rounded, color: context.textTertiary, size: 24),
         ),
       ],
     );
@@ -200,12 +200,12 @@ class _GaragePageState extends State<GaragePage> {
     
     // Server doesn't return health for now, default to 100%
     final double health = 1.0; 
-    final bool isActive = carId == 1; // Mock active state for now
+    final bool isActive = carId == '1'; // Mock active state for now
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(32),
         border: BorderDirectional(start: BorderSide(color: isActive ? color : color.withOpacity(0.2), width: 4)),
       ),
@@ -244,9 +244,9 @@ class _GaragePageState extends State<GaragePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${data['brand']} ${data['model']}', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text('${data['brand']} ${data['model']}', style: TextStyle(color: context.textMain, fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    Text(data['plate_number'] ?? 'No Plate', style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text(data['plate_number'] ?? 'No Plate', style: TextStyle(color: context.textTertiary, fontSize: 12, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
                     Row(
                       children: [
@@ -257,7 +257,7 @@ class _GaragePageState extends State<GaragePage> {
                             borderRadius: BorderRadius.circular(2),
                             child: LinearProgressIndicator(
                               value: health,
-                              backgroundColor: Colors.white10,
+                              backgroundColor: context.borderFaded,
                               valueColor: AlwaysStoppedAnimation<Color>(color),
                               minHeight: 4,
                             ),
@@ -272,7 +272,7 @@ class _GaragePageState extends State<GaragePage> {
                 children: [
                   IconButton(
                     onPressed: onEdit,
-                    icon: const Icon(Icons.edit_note_rounded, color: Colors.white24),
+                    icon: Icon(Icons.edit_note_rounded, color: context.textFaded),
                     visualDensity: VisualDensity.compact,
                   ),
                   IconButton(
@@ -289,23 +289,23 @@ class _GaragePageState extends State<GaragePage> {
     ).animate().fadeIn(delay: 50.ms).moveX(begin: 20, end: 0);
   }
 
-  Widget _buildAddVehicleButton() {
+  Widget _buildAddVehicleButton(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white.withOpacity(0.05), width: 2),
+        border: Border.all(color: context.cardColor, width: 2),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle),
-            child: const Icon(Icons.add_rounded, color: Colors.white38, size: 32),
+            decoration: BoxDecoration(color: context.cardColor, shape: BoxShape.circle),
+            child: Icon(Icons.add_rounded, color: context.textTertiary, size: 32),
           ),
           const SizedBox(height: 12),
-          Text(Translations.get('add_vehicle'), style: const TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+          Text(Translations.get('add_vehicle'), style: TextStyle(color: context.textFaded, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
         ],
       ),
     );

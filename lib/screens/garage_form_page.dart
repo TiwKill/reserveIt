@@ -72,25 +72,25 @@ class _GarageFormPageState extends State<GarageFormPage> {
       builder: (context) => Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
+          color: context.surfaceColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: context.borderFaded),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: context.textFaded, borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 24),
-            Text(Translations.get('upload_vehicle_photo'), style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(Translations.get('upload_vehicle_photo'), style: TextStyle(color: context.textMain, fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 24),
             Row(
               children: [
-                Expanded(child: _buildSourceOption(Icons.camera_alt_rounded, Translations.get('camera'), AppTheme.primary, () {
+                Expanded(child: _buildSourceOption(context, Icons.camera_alt_rounded, Translations.get('camera'), AppTheme.primary, () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.camera);
                 })),
                 const SizedBox(width: 16),
-                Expanded(child: _buildSourceOption(Icons.photo_library_rounded, Translations.get('gallery'), Colors.blue, () {
+                Expanded(child: _buildSourceOption(context, Icons.photo_library_rounded, Translations.get('gallery'), Colors.blue, () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.gallery);
                 })),
@@ -103,17 +103,17 @@ class _GarageFormPageState extends State<GarageFormPage> {
     );
   }
 
-  Widget _buildSourceOption(IconData icon, String label, Color color, VoidCallback onTap) {
+  Widget _buildSourceOption(BuildContext context, IconData icon, String label, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 24),
-        decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(20)),
+        decoration: BoxDecoration(color: context.cardColor, borderRadius: BorderRadius.circular(20)),
         child: Column(
           children: [
             Icon(icon, color: color, size: 32),
             const SizedBox(height: 12),
-            Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(label, style: TextStyle(color: context.textMain, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -180,18 +180,18 @@ class _GarageFormPageState extends State<GarageFormPage> {
     bool isEdit = widget.initialData != null;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: context.bgColor,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textMain),
         ),
         title: Text(
           isEdit ? Translations.get('edit_vehicle') : Translations.get('add_new_vehicle'),
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
+          style: TextStyle(color: context.textMain, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
         ),
         centerTitle: true,
       ),
@@ -220,7 +220,7 @@ class _GarageFormPageState extends State<GarageFormPage> {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [AppTheme.backgroundDark.withOpacity(0.6), Colors.transparent, AppTheme.backgroundDark],
+                      colors: [context.bgColor.withOpacity(0.6), Colors.transparent, context.bgColor],
                     ),
                   ),
                   child: Center(
@@ -228,9 +228,9 @@ class _GarageFormPageState extends State<GarageFormPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const SizedBox(height: 48),
-                        Icon(Icons.add_a_photo_rounded, color: Colors.white.withOpacity(0.5), size: 48),
+                        const Icon(Icons.add_a_photo_rounded, color: Colors.white54, size: 48),
                         const SizedBox(height: 12),
-                        Text(Translations.get('tap_to_change_photo'), style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                        Text(Translations.get('tap_to_change_photo'), style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
                       ],
                     ),
                   ),
@@ -245,7 +245,7 @@ class _GarageFormPageState extends State<GarageFormPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Vehicle Identity', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
+                    Text('Vehicle Identity', style: TextStyle(color: context.textMain, fontSize: 24, fontWeight: FontWeight.w900)),
                     const SizedBox(height: 24),
                     
                     Row(
@@ -253,6 +253,7 @@ class _GarageFormPageState extends State<GarageFormPage> {
                         Expanded(
                           flex: 2,
                           child: _buildTextField(
+                            context,
                             controller: _brandController,
                             label: Translations.get('brand_label'),
                             hint: Translations.get('brand_hint'),
@@ -263,6 +264,7 @@ class _GarageFormPageState extends State<GarageFormPage> {
                         const SizedBox(width: 16),
                         Expanded(
                           child: _buildTextField(
+                            context,
                             controller: _yearController,
                             label: Translations.get('year_label'),
                             hint: '2022',
@@ -275,6 +277,7 @@ class _GarageFormPageState extends State<GarageFormPage> {
                     ),
                     const SizedBox(height: 24),
                     _buildTextField(
+                      context,
                       controller: _modelController,
                       label: Translations.get('model_label'),
                       hint: Translations.get('model_hint'),
@@ -283,6 +286,7 @@ class _GarageFormPageState extends State<GarageFormPage> {
                     ),
                     const SizedBox(height: 24),
                     _buildTextField(
+                      context,
                       controller: _plateController,
                       label: Translations.get('plate_label'),
                       hint: Translations.get('plate_hint'),
@@ -322,7 +326,8 @@ class _GarageFormPageState extends State<GarageFormPage> {
     );
   }
 
-  Widget _buildTextField({
+  Widget _buildTextField(
+    BuildContext context, {
     required TextEditingController controller,
     required String label,
     required String hint,
@@ -333,21 +338,21 @@ class _GarageFormPageState extends State<GarageFormPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+        Text(label, style: TextStyle(color: context.textTertiary, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           validator: validator,
           keyboardType: keyboardType,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: context.textMain, fontSize: 16),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white12),
+            hintStyle: TextStyle(color: context.borderFaded),
             prefixIcon: Icon(icon, color: AppTheme.primary, size: 20),
             filled: true,
-            fillColor: Colors.white.withOpacity(0.05),
+            fillColor: context.cardColor,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.white.withOpacity(0.05))),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: context.cardColor)),
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppTheme.primary)),
           ),
         ),

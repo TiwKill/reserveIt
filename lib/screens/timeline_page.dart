@@ -42,15 +42,14 @@ class _TimelinePageState extends State<TimelinePage> {
   }
 
   // Map API data to UI model
-  Map<String, dynamic> _mapToUI(Map<String, dynamic> apiData, double percent) {
+  Map<String, dynamic> _mapToUI(BuildContext context, Map<String, dynamic> apiData, double percent) {
     final String rawResult = apiData['ai_result']?.toString() ?? 'Normal';
     final String result = rawResult.isNotEmpty ? '${rawResult[0].toUpperCase()}${rawResult.substring(1).toLowerCase()}' : rawResult;
     final String lowerResult = result.toLowerCase();
-    
     final bool isOCR = lowerResult.contains('dot') || (apiData['is_ocr'] == true);
     final bool isSuccess = lowerResult == 'good' || lowerResult == 'normal';
     final Color color = isOCR 
-        ? Colors.white38 
+        ? context.textTertiary 
         : (isSuccess ? AppTheme.success : AppTheme.warning);
     
     return {
@@ -72,7 +71,7 @@ class _TimelinePageState extends State<TimelinePage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppTheme.backgroundDark,
+      color: context.bgColor,
       child: Stack(
         children: [
           SafeArea(
@@ -113,21 +112,21 @@ class _TimelinePageState extends State<TimelinePage> {
                       BoxShadow(color: AppTheme.primary.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5))
                     ],
                   ),
-                  child: const Icon(Icons.analytics_rounded, color: Colors.white, size: 24),
+                  child: Icon(Icons.analytics_rounded, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('TireGuard AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: -0.5)),
-                    Text(Translations.get('app_name_subtitle'), style: const TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                    Text('TireGuard AI', style: TextStyle(color: context.textMain, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: -0.5)),
+                    Text(Translations.get('app_name_subtitle'), style: TextStyle(color: context.textFaded, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                   ],
                 ),
               ],
             ),
             IconButton(
               onPressed: () => Navigator.pushNamed(context, '/settings'),
-              icon: const Icon(Icons.person_outline_rounded, color: Colors.white38),
+              icon: Icon(Icons.person_outline_rounded, color: context.textTertiary),
             ),
           ],
         ),
@@ -135,9 +134,9 @@ class _TimelinePageState extends State<TimelinePage> {
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E293B).withOpacity(0.3),
+            color: context.surfaceColor,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            border: Border.all(color: context.cardColor),
           ),
           child: Column(
             children: [
@@ -148,16 +147,16 @@ class _TimelinePageState extends State<TimelinePage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(Translations.get('recent_analysis'), style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                      Text(Translations.get('recent_analysis'), style: TextStyle(color: context.textSec, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
                       const SizedBox(height: 4),
                       Text(_timelineItems.isNotEmpty ? _timelineItems.first['ai_result'].toString().toUpperCase() : Translations.get('no_data'),
-                          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
+                          style: TextStyle(color: context.textMain, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(Translations.get('system_status'), style: const TextStyle(color: Colors.white38, fontSize: 10, fontStyle: FontStyle.italic)),
+                      Text(Translations.get('system_status'), style: TextStyle(color: context.textTertiary, fontSize: 10, fontStyle: FontStyle.italic)),
                       Text(Translations.get('algorithms_ready'), style: const TextStyle(color: AppTheme.success, fontSize: 10, fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -176,9 +175,9 @@ class _TimelinePageState extends State<TimelinePage> {
         padding: const EdgeInsets.only(top: 100),
         child: Column(
           children: [
-            Icon(Icons.history_rounded, size: 64, color: Colors.white.withOpacity(0.05)),
+            Icon(Icons.history_rounded, size: 64, color: context.cardColor),
             const SizedBox(height: 16),
-            Text(Translations.get('no_scan_history'), style: const TextStyle(color: Colors.white24)),
+            Text(Translations.get('no_scan_history'), style: TextStyle(color: context.textFaded)),
           ],
         ),
       );
@@ -191,7 +190,7 @@ class _TimelinePageState extends State<TimelinePage> {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       itemBuilder: (context, index) {
         final apiData = _timelineItems[index];
-        final uiData = _mapToUI(apiData, 0.5);
+        final uiData = _mapToUI(context, apiData, 0.5);
         final bool isActive = _activeDetailId == uiData['id'];
         final bool isLast = index == _timelineItems.length - 1;
 
@@ -215,11 +214,10 @@ class _TimelinePageState extends State<TimelinePage> {
                       ],
                     ),
                   ),
-                  if (!isLast)
                     Expanded(
                       child: Container(
                         width: 2,
-                        color: Colors.white.withOpacity(0.1),
+                        color: context.borderFaded,
                         margin: const EdgeInsets.symmetric(vertical: 8),
                       ),
                     ),
@@ -239,7 +237,7 @@ class _TimelinePageState extends State<TimelinePage> {
                         ? _buildDetailCard(context, uiData)
                         : GestureDetector(
                             onTap: () => _toggleDetail(uiData['id']),
-                            child: _buildSummaryCard(uiData),
+                            child: _buildSummaryCard(context, uiData),
                           ).animate().fadeIn(delay: (50 * index).ms).slideX(begin: 0.1, end: 0),
                   ),
                 ),
@@ -251,14 +249,14 @@ class _TimelinePageState extends State<TimelinePage> {
     );
   }
 
-  Widget _buildSummaryCard(Map<String, dynamic> data) {
+  Widget _buildSummaryCard(BuildContext context, Map<String, dynamic> data) {
     final color = data['color'] as Color;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.02),
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: context.cardColor),
       ),
       child: Row(
         children: [
@@ -278,13 +276,13 @@ class _TimelinePageState extends State<TimelinePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(data['title'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(data['title'], style: TextStyle(color: context.textMain, fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
-                Text(data['date'], style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                Text(data['date'], style: TextStyle(color: context.textTertiary, fontSize: 12)),
               ],
             ),
           ),
-          const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white24),
+          Icon(Icons.keyboard_arrow_down_rounded, color: context.textFaded),
         ],
       ),
     );

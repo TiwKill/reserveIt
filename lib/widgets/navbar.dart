@@ -30,12 +30,12 @@ class CustomNavbar extends StatelessWidget {
                 height: 80,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white.withOpacity(0.05)
-                      : Colors.white.withOpacity(0.8),
+                  color: context.isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.white.withValues(alpha: 0.8),
                   border: Border(
                     top: BorderSide(
-                      color: Colors.white.withOpacity(0.2),
+                      color: context.borderFaded,
                       width: 1,
                     ),
                   ),
@@ -81,7 +81,7 @@ class CustomNavbar extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primary.withOpacity(0.3),
+                      color: AppTheme.primary.withValues(alpha: 0.3),
                       blurRadius: 15,
                       offset: const Offset(0, 8),
                     ),
@@ -105,9 +105,7 @@ class CustomNavbar extends StatelessWidget {
     final bool isActive = currentIndex == index;
     final Color color = isActive
         ? AppTheme.primary
-        : (Theme.of(context).brightness == Brightness.dark
-            ? Colors.white.withOpacity(0.4)
-            : Colors.black.withOpacity(0.4));
+        : context.textTertiary;
 
     return GestureDetector(
       onTap: () => onTap(index),

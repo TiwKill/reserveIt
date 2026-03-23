@@ -18,11 +18,11 @@ class SettingsPage extends StatelessWidget {
         final String? photoUrl = mockUser['profileUrl'];
 
         return Scaffold(
-          backgroundColor: AppTheme.backgroundDark,
+          backgroundColor: context.bgColor,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            title: Text(Translations.get('settings_title'), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+            title: Text(Translations.get('settings_title'), style: TextStyle(fontWeight: FontWeight.bold, color: context.textMain)),
             centerTitle: true,
           ),
           body: ListView(
@@ -36,23 +36,23 @@ class SettingsPage extends StatelessWidget {
                       radius: 50,
                       backgroundColor: AppTheme.primary.withOpacity(0.1),
                       backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
-                      child: photoUrl == null ? const Icon(Icons.person, color: Colors.white, size: 40) : null,
+                      child: photoUrl == null ? Icon(Icons.person, color: context.textMain, size: 40) : null,
                     ),
                     const SizedBox(height: 16),
-                    Text(name, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-                    Text(email, style: const TextStyle(color: Colors.white38, fontSize: 14)),
+                    Text(name, style: TextStyle(color: context.textMain, fontSize: 24, fontWeight: FontWeight.bold)),
+                    Text(email, style: TextStyle(color: context.textTertiary, fontSize: 14)),
                   ],
                 ),
               ),
               const SizedBox(height: 48),
               
-              _buildSettingsSection(Translations.get('section_account')),
-              _buildSettingsTile(Icons.person_outline_rounded, Translations.get('personal_info')),
-              _buildSettingsTile(Icons.notifications_none_rounded, Translations.get('notifications')),
-              _buildSettingsTile(Icons.security_rounded, Translations.get('security_privacy')),
+              _buildSettingsSection(context, Translations.get('section_account')),
+              _buildSettingsTile(context, Icons.person_outline_rounded, Translations.get('personal_info')),
+              _buildSettingsTile(context, Icons.notifications_none_rounded, Translations.get('notifications')),
+              _buildSettingsTile(context, Icons.security_rounded, Translations.get('security_privacy')),
               
               const SizedBox(height: 32),
-              _buildSettingsSection(Translations.get('section_system')),
+              _buildSettingsSection(context, Translations.get('section_system')),
               GestureDetector(
                 onTap: () {
                   if (Translations.currentLang.value == 'th') {
@@ -62,12 +62,23 @@ class SettingsPage extends StatelessWidget {
                   }
                 },
                 child: _buildSettingsTile(
+                  context,
                   Icons.language_rounded, 
                   Translations.get('language'), 
                   trailing: Translations.currentLang.value == 'th' ? 'ไทย' : 'English',
                 ),
               ),
-              _buildSettingsTile(Icons.dark_mode_outlined, Translations.get('dark_mode'), trailing: Translations.get('always_on')),
+              GestureDetector(
+                onTap: () {
+                  AppTheme.toggleTheme();
+                },
+                child: _buildSettingsTile(
+                  context,
+                  Icons.dark_mode_outlined, 
+                  Translations.get('dark_mode'), 
+                  trailing: context.isDark ? Translations.get('always_on') : 'Off'
+                ),
+              ),
               
               const SizedBox(height: 48),
               // Logout
@@ -99,30 +110,30 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsSection(String title) {
+  Widget _buildSettingsSection(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: Text(title.toUpperCase(), style: const TextStyle(color: Colors.white24, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+      child: Text(title.toUpperCase(), style: TextStyle(color: context.textFaded, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
     );
   }
 
-  Widget _buildSettingsTile(IconData icon, String title, {String? trailing}) {
+  Widget _buildSettingsTile(BuildContext context, IconData icon, String title, {String? trailing}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white54, size: 24),
+          Icon(icon, color: context.textSec, size: 24),
           const SizedBox(width: 16),
-          Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600))),
+          Expanded(child: Text(title, style: TextStyle(color: context.textMain, fontWeight: FontWeight.w600))),
           if (trailing != null)
-            Text(trailing, style: const TextStyle(color: Colors.white24, fontSize: 14)),
+            Text(trailing, style: TextStyle(color: context.textFaded, fontSize: 14)),
           const SizedBox(width: 8),
-          const Icon(Icons.chevron_right_rounded, color: Colors.white12),
+          Icon(Icons.chevron_right_rounded, color: context.borderFaded),
         ],
       ),
     );
